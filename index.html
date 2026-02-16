@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent IA - Cartographie des Scénarios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #f07c02;
+            --green: #a7ae26;
+            --grey: #6f6f6f;
+            --black: #1a1a1a;
+            --white: #ffffff;
+            --red: #e74c3c;
+            --success: #27ae60;
+            --blue: #4a90e2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            color: var(--black);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--orange), #ff9933);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(240, 124, 2, 0.2);
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            background: white;
+            border: 2px solid var(--orange);
+            color: var(--orange);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .control-btn:hover {
+            background: var(--orange);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 124, 2, 0.3);
+        }
+
+        /* Search */
+        .search-box {
+            margin-bottom: 30px;
+            position: relative;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 5px 20px rgba(240, 124, 2, 0.15);
+        }
+
+        /* Tree Container */
+        .tree-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Tree Structure */
+        .tree {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tree ul {
+            list-style: none;
+            padding-left: 40px;
+            margin-left: 20px;
+            border-left: 2px solid #e0e0e0;
+            display: none;
+        }
+
+        .tree ul.expanded {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Tree Node */
+        .tree-node {
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .tree-node::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 50%;
+            width: 20px;
+            height: 2px;
+            background: #e0e0e0;
+        }
+
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .node-header:hover {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transform: translateX(5px);
+        }
+
+        .node-header.has-children::after {
+            content: '▶';
+            position: absolute;
+            right: 20px;
+            color: var(--grey);
+            transition: transform 0.3s ease;
+            font-size: 0.75rem;
+        }
+
+        .node-header.expanded::after {
+            transform: rotate(90deg);
+        }
+
+        /* Root Level */
+        .tree > .tree-node > .node-header {
+            background: linear-gradient(135deg, var(--orange), #ff9933);
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 700;
+            padding: 20px 25px;
+            box-shadow: 0 5px 20px rgba(240, 124, 2, 0.25);
+        }
+
+        .tree > .tree-node > .node-header:hover {
+            background: linear-gradient(135deg, #ff9933, var(--orange));
+            transform: translateX(0) scale(1.01);
+        }
+
+        .tree > .tree-node > .node-header::after {
+            color: white;
+        }
+
+        /* Level 1 - Categories */
+        .tree > .tree-node > ul > .tree-node > .node-header {
+            background: linear-gradient(135deg, #4a90e2, #5ca3ff);
+            color: white;
+            font-weight: 600;
+            font-size: 1.05rem;
+            border-color: #4a90e2;
+        }
+
+        .tree > .tree-node > ul > .tree-node > .node-header::after {
+            color: white;
+        }
+
+        .tree > .tree-node > ul > .tree-node.visitor > .node-header {
+            background: linear-gradient(135deg, var(--green), #b8c030);
+            border-color: var(--green);
+        }
+
+        /* Level 2 - Scenarios */
+        .tree > .tree-node > ul > .tree-node > ul > .tree-node > .node-header {
+            background: white;
+            color: var(--black);
+            border: 2px solid var(--grey);
+            font-weight: 600;
+        }
+
+        .tree > .tree-node > ul > .tree-node > ul > .tree-node > .node-header:hover {
+            border-color: var(--orange);
+        }
+
+        /* Node Badge */
+        .node-badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Detail Panel */
+        .detail-panel {
+            margin-top: 15px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-radius: 10px;
+            border-left: 4px solid var(--orange);
+            display: none;
+        }
+
+        .detail-panel.show {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-title {
+            font-weight: 700;
+            color: var(--orange);
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        .detail-content {
+            color: var(--grey);
+            line-height: 1.8;
+        }
+
+        .detail-content strong {
+            color: var(--black);
+        }
+
+        /* Dialogue Box */
+        .dialogue-box {
+            background: linear-gradient(135deg, #fff9f0, #ffffff);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--blue);
+            margin-top: 15px;
+        }
+
+        .dialogue-title {
+            font-weight: 700;
+            color: var(--blue);
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+        }
+
+        .chat-message {
+            margin: 12px 0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 85%;
+        }
+
+        .chat-message.user {
+            background: #e9ecef;
+            color: var(--black);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .chat-message.agent {
+            background: linear-gradient(135deg, var(--orange), #ff9933);
+            color: white;
+            margin-right: auto;
+        }
+
+        .chat-message.label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.7;
+            margin-bottom: 4px;
+        }
+
+        /* Feature Box */
+        .feature-box {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--orange);
+            margin-top: 15px;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            color: var(--orange);
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        /* Onboarding Section */
+        .onboarding-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .onboarding-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--orange);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .onboarding-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .onboarding-btn {
+            padding: 15px 30px;
+            background: white;
+            border: 3px solid var(--blue);
+            color: var(--blue);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .onboarding-btn:hover {
+            background: var(--blue);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+        }
+
+        .onboarding-btn.visitor-btn {
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .onboarding-btn.visitor-btn:hover {
+            background: var(--green);
+            color: white;
+            box-shadow: 0 5px 15px rgba(167, 174, 38, 0.3);
+        }
+
+        .onboarding-input-group {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .onboarding-label {
+            display: block;
+            font-weight: 600;
+            color: var(--grey);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .onboarding-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .onboarding-input:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(240, 124, 2, 0.1);
+        }
+
+        .onboarding-examples {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--grey);
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .header p {
+                font-size: 0.95rem;
+            }
+
+            .tree-container {
+                padding: 20px;
+            }
+
+            .tree ul {
+                padding-left: 20px;
+                margin-left: 10px;
+            }
+
+            .node-header {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+
+            .detail-panel {
+                padding: 15px;
+            }
+
+            .onboarding-buttons {
+                flex-direction: column;
+            }
+
+            .onboarding-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Agent IA - Cartographie des Scénarios</h1>
+            <p>Portail Maroclear - Tous les parcours utilisateurs structurés</p>
+        </div>
+
+        <!-- Onboarding Section -->
+        <div class="onboarding-section">
+            <div class="onboarding-title">Comment puis-je vous aider aujourd'hui ?</div>
+            
+            <div class="onboarding-buttons">
+                <button class="onboarding-btn">Je suis Affilié</button>
+                <button class="onboarding-btn visitor-btn">Je suis Visiteur</button>
+            </div>
+
+            <div class="onboarding-input-group">
+                <label class="onboarding-label">Ou décrivez votre besoin :</label>
+                <input 
+                    type="text" 
+                    class="onboarding-input" 
+                    placeholder="Ex: J'ai un problème avec mon dénouement, Je veux devenir affilié, Comment générer un relevé..."
+                >
+                <div class="onboarding-examples">
+                    Exemples : "Blocage connexion MyMaroclear", "Demande de token", "Question sur les transferts"
+                </div>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un scénario (ex: incident, affiliation, résumé)">
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="control-btn" id="expandAll">Tout Développer</button>
+            <button class="control-btn" id="collapseAll">Tout Réduire</button>
+        </div>
+
+        <!-- Tree Container -->
+        <div class="tree-container">
+            <ul class="tree" id="mainTree">
+                <!-- Root -->
+                <li class="tree-node">
+                    <div class="node-header has-children" data-node="root">
+                        <span class="node-title">PORTAIL PUBLIC</span>
+                        <span class="node-badge">Accessible à tous</span>
+                    </div>
+                    <ul>
+                        <!-- Affilié -->
+                        <li class="tree-node affiliate">
+                            <div class="node-header has-children" data-node="affiliate">
+                                <span class="node-title">AFFILIÉ (Connecté)</span>
+                                <span class="node-badge">Authentifié</span>
+                            </div>
+                            <ul>
+                                <!-- A. PROBLÈME TECHNIQUE -->
+                                <li class="tree-node">
+                                    <div class="node-header has-children" data-node="incident">
+                                        <span class="node-title">A. PROBLÈME TECHNIQUE</span>
+                                    </div>
+                                    <ul>
+                                        <li class="tree-node">
+                                            <div class="node-header" data-node="incident-new">
+                                                <span class="node-title">INCIDENT NOUVEAU</span>
+                                            </div>
+                                            <div class="detail-panel">
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Contexte</div>
+                                                    <div class="detail-content">
+                                                        Utilisateur affilié rencontre un problème technique pour la première fois. L'agent guide l'extraction d'informations structurées.
+                                                    </div>
+                                                </div>
+
+                                                <div class="dialogue-box">
+                                                    <div class="dialogue-title">Exemple de Conversation</div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        Quand j'essaie de valider le dénouement, ça affiche une erreur
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        Je comprends. Sur quel système cela se produit-il ?<br>
+                                                        [Bouton : MyMaroclear] [Bouton : TCS BaNCS]
+                                                    </div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        TCS BaNCS
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        Quel est le message d'erreur exact ? Vous pouvez copier-coller le message ou joindre une capture d'écran.
+                                                    </div>
+                                                </div>
+
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Informations Extraites</div>
+                                                    <div class="detail-content">
+                                                        <strong>Service concerné</strong> : Post-marché Bourse, Reporting, Référentiel-Titres<br>
+                                                        <strong>Système impacté</strong> : MyMaroclear ou TCS BaNCS<br>
+                                                        <strong>Date/Heure exacte</strong> : Obligatoire pour traçabilité<br>
+                                                        <strong>Description structurée</strong> : Contexte, Action, Résultat obtenu vs attendu<br>
+                                                        <strong>Capture d'écran</strong> : Fortement recommandée
+                                                    </div>
+                                                </div>
+
+                                                <div class="feature-box">
+                                                    <div class="feature-title">Fonctionnalité Transverse : Résumé Automatique</div>
+                                                    <div class="detail-content">
+                                                        Avant création du ticket, l'agent génère un <strong>résumé structuré en langage clair</strong> et demande validation à l'utilisateur. Cette fonctionnalité s'applique à tous les incidents pour garantir la qualité des tickets GLPI.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        <li class="tree-node">
+                                            <div class="node-header" data-node="incident-existing">
+                                                <span class="node-title">INCIDENT EXISTANT (Suivi)</span>
+                                            </div>
+                                            <div class="detail-panel">
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Contexte</div>
+                                                    <div class="detail-content">
+                                                        Utilisateur veut consulter l'état d'avancement d'un incident déjà déclaré.
+                                                    </div>
+                                                </div>
+
+                                                <div class="dialogue-box">
+                                                    <div class="dialogue-title">Exemple de Conversation</div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        Bonjour, j'ai déclaré un incident hier, où ça en est ?
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        Bonjour Ahmed ! Je vérifie vos incidents en cours...<br><br>
+                                                        <strong>GLPI-2026-8756</strong> - Créé le 11/02/2026<br>
+                                                        Statut : <strong>En cours de traitement</strong><br>
+                                                        Technicien : Mehdi ALAOUI<br>
+                                                        Dernière mise à jour : Aujourd'hui 10h15<br><br>
+                                                        Commentaire : "Correction en cours. Résolution prévue avant 16h"
+                                                    </div>
+                                                </div>
+
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Processus</div>
+                                                    <div class="detail-content">
+                                                        <strong>1. Identification</strong> : Via numéro ticket ou description<br>
+                                                        <strong>2. Consultation API GLPI</strong> : Récupération statut temps réel<br>
+                                                        <strong>3. Communication</strong> : Statut, technicien assigné, dernier commentaire, résolution estimée
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        <li class="tree-node">
+                                            <div class="node-header" data-node="incident-recurrent">
+                                                <span class="node-title">INCIDENT RÉCURRENT</span>
+                                            </div>
+                                            <div class="detail-panel">
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Contexte</div>
+                                                    <div class="detail-content">
+                                                        Même problème revient plusieurs fois. Détection automatique de la récurrence via analyse historique.
+                                                    </div>
+                                                </div>
+
+                                                <div class="dialogue-box">
+                                                    <div class="dialogue-title">Exemple de Conversation</div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        Le même problème que la semaine dernière est revenu !
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        Je vois que vous avez eu un incident similaire récemment.<br><br>
+                                                        <strong>Incident précédent :</strong> GLPI-2026-8642<br>
+                                                        Résolution : "Problème réseau temporaire"<br><br>
+                                                        Je vais créer un nouveau ticket en mentionnant la récurrence pour investigation approfondie.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        <li class="tree-node">
+                                            <div class="node-header" data-node="incident-multiple">
+                                                <span class="node-title">INCIDENTS MULTIPLES (Séparer)</span>
+                                            </div>
+                                            <div class="detail-panel">
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Contexte</div>
+                                                    <div class="detail-content">
+                                                        Utilisateur signale plusieurs problèmes différents en même temps. L'agent applique la règle : <strong>1 incident = 1 ticket</strong>
+                                                    </div>
+                                                </div>
+
+                                                <div class="dialogue-box">
+                                                    <div class="dialogue-title">Exemple de Conversation</div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        J'ai deux problèmes : mon dénouement est bloqué ET je n'arrive pas à générer mon relevé
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        Je comprends que vous rencontrez deux problèmes différents.<br><br>
+                                                        Pour un traitement optimal, nous allons créer un incident séparé pour chaque problème.<br><br>
+                                                        Lequel est prioritaire pour vous ?<br>
+                                                        [Bouton : Le dénouement bloqué]<br>
+                                                        [Bouton : Le relevé]
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        <li class="tree-node">
+                                            <div class="node-header" data-node="incident-mass">
+                                                <span class="node-title">INCIDENT DE MASSE</span>
+                                            </div>
+                                            <div class="detail-panel">
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Contexte</div>
+                                                    <div class="detail-content">
+                                                        Problème affectant plusieurs utilisateurs simultanément (ex: serveur down, panne généralisée).
+                                                    </div>
+                                                </div>
+
+                                                <div class="dialogue-box">
+                                                    <div class="dialogue-title">Exemple de Conversation</div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        MyMaroclear est complètement inaccessible !
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        <strong>INCIDENT GÉNÉRALISÉ DÉTECTÉ</strong><br><br>
+                                                        Nous avons identifié un problème d'accès affectant plusieurs utilisateurs.<br><br>
+                                                        Cause : Serveur en maintenance<br>
+                                                        Résolution estimée : 15h30 (dans ~1h)<br><br>
+                                                        Votre incident est pris en charge dans le ticket global. Vous recevrez un email dès la résolution.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+
+                                        <li class="tree-node">
+                                            <div class="node-header" data-node="incident-non-fonde">
+                                                <span class="node-title">INCIDENT NON FONDÉ</span>
+                                            </div>
+                                            <div class="detail-panel">
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Contexte</div>
+                                                    <div class="detail-content">
+                                                        L'utilisateur pense avoir un incident technique, mais il s'agit en réalité d'une <strong>erreur d'usage</strong> ou d'une <strong>incompréhension</strong>.
+                                                    </div>
+                                                </div>
+
+                                                <div class="dialogue-box">
+                                                    <div class="dialogue-title">Exemple de Conversation</div>
+                                                    
+                                                    <div class="chat-message user">
+                                                        <div class="label">UTILISATEUR :</div>
+                                                        Le bouton "Générer" est grisé, je ne peux pas cliquer
+                                                    </div>
+                                                    
+                                                    <div class="chat-message agent">
+                                                        <div class="label">AGENT :</div>
+                                                        Je vois le problème. Le bouton est grisé car vous n'avez pas sélectionné la période souhaitée.<br><br>
+                                                        Voici la procédure :<br>
+                                                        1. Choisissez la période dans le menu déroulant<br>
+                                                        2. Le bouton "Générer" deviendra actif<br>
+                                                        3. Cliquez pour générer votre relevé
+                                                    </div>
+                                                </div>
+
+                                                <div class="detail-section">
+                                                    <div class="detail-title">Action Agent</div>
+                                                    <div class="detail-content">
+                                                        <strong>Classification automatique</strong> : L'agent détecte via RAG que le "problème" est en fait un besoin de formation.<br>
+                                                        <strong>Orientation</strong> : Guide l'utilisateur vers la bonne procédure.<br>
+                                                        <strong>Pas de ticket incident</strong> : Évite de polluer GLPI.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- B. RÉCLAMATION MÉTIER -->
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="reclamation">
+                                        <span class="node-title">B. RÉCLAMATION MÉTIER</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                Contestation métier, désaccord facturation, litige procédural. Ce n'est PAS un incident technique.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">UTILISATEUR :</div>
+                                                Je conteste les frais de dénouement facturés le mois dernier
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Je comprends votre préoccupation concernant la facturation.<br><br>
+                                                Les contestations métier et réclamations sont traitées par un service dédié.<br><br>
+                                                <strong>Service Réclamations :</strong><br>
+                                                Email : reclamations@maroclear.com<br>
+                                                Tél : +212 5XX XX XX XX<br>
+                                                Horaires : 9h-17h
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <!-- C. DEMANDE ADMINISTRATIVE -->
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="demande-admin">
+                                        <span class="node-title">C. DEMANDE ADMINISTRATIVE</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                Demande de token, document, certificat, modification informations. Ce n'est PAS un incident technique.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">UTILISATEUR :</div>
+                                                J'ai besoin d'un nouveau token d'accès
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Les demandes de token suivent une procédure spécifique :<br><br>
+                                                1. Allez dans "Mon compte" > "Sécurité"<br>
+                                                2. Cliquez sur "Demander un nouveau token"<br>
+                                                3. Remplissez le formulaire<br>
+                                                4. Token généré sous 24h ouvrées<br><br>
+                                                Souhaitez-vous que je vous guide ?
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <!-- D. PROBLÈME CONNEXION -->
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="problem-connexion">
+                                        <span class="node-title">D. PROBLÈME CONNEXION</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                Affilié ne peut pas se connecter : mot de passe oublié, identifiant perdu, compte bloqué, erreur SSO.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">UTILISATEUR :</div>
+                                                Je n'arrive pas à me connecter à MyMaroclear
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Je peux vous aider. Que se passe-t-il exactement ?<br><br>
+                                                [Bouton : Mot de passe oublié]<br>
+                                                [Bouton : Identifiant oublié]<br>
+                                                [Bouton : Compte bloqué]<br>
+                                                [Bouton : Message d'erreur]
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <!-- E. HORS PÉRIMÈTRE -->
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="hors-perimetre-affilie">
+                                        <span class="node-title">E. HORS PÉRIMÈTRE</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                La demande ne concerne pas Maroclear (question AMMC, Bourse de Casablanca, banque, etc.).
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">UTILISATEUR :</div>
+                                                Comment obtenir l'agrément AMMC pour une société de bourse ?
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Cette demande concerne l'AMMC (Autorité Marocaine du Marché des Capitaux), pas Maroclear.<br><br>
+                                                <strong>Contact AMMC :</strong><br>
+                                                Site web : www.ammc.ma<br>
+                                                Email : contact@ammc.ma<br>
+                                                Tél : +212 537 633 000
+                                            </div>
+                                        </div>
+
+                                        <div class="feature-box">
+                                            <div class="feature-title">Fonctionnalité Transverse : Auto-Apprentissage</div>
+                                            <div class="detail-content">
+                                                Si l'agent ne connaît pas la réponse, il propose de <strong>transmettre la question au support</strong> et d'apprendre de la réponse pour enrichir sa base de connaissances. Cette fonctionnalité s'applique à toutes les questions métier pour amélioration continue.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Visiteur -->
+                        <li class="tree-node visitor">
+                            <div class="node-header has-children" data-node="visitor">
+                                <span class="node-title">NON-AFFILIÉ (Visiteur)</span>
+                                <span class="node-badge">Accès public</span>
+                            </div>
+                            <ul>
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="visitor-question">
+                                        <span class="node-title">QUESTION MÉTIER (Public)</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                Visiteur non connecté cherche des informations générales sur Maroclear (rôle, services, procédures).
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">VISITEUR :</div>
+                                                Quel est le rôle de Maroclear dans le marché financier marocain ?
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Maroclear est le dépositaire central des titres au Maroc. Nos principales missions sont :<br><br>
+                                                • Conservation des titres<br>
+                                                • Règlement-livraison des opérations<br>
+                                                • Tenue de comptes<br>
+                                                • Services post-marché<br><br>
+                                                Souhaitez-vous plus de détails sur un service spécifique ?
+                                            </div>
+                                        </div>
+
+                                        <div class="feature-box">
+                                            <div class="feature-title">Fonctionnalité Transverse : Auto-Apprentissage</div>
+                                            <div class="detail-content">
+                                                Si l'agent ne connaît pas la réponse à une question publique, il propose de transmettre au support et d'enrichir sa base pour les prochaines fois.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="visitor-affiliation">
+                                        <span class="node-title">DEMANDE AFFILIATION</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                Nouveau participant souhaite s'affilier à Maroclear.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">VISITEUR :</div>
+                                                Bonjour, je voudrais devenir affilié à Maroclear
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Merci de votre intérêt pour Maroclear !<br><br>
+                                                Je vous invite à consulter notre guide complet d'affiliation qui détaille :<br>
+                                                • Conditions d'éligibilité<br>
+                                                • Documents requis<br>
+                                                • Étapes de la demande<br>
+                                                • Délais : 4 à 6 semaines<br><br>
+                                                [Télécharger le guide PDF]<br><br>
+                                                <strong>Contact :</strong> affiliation@maroclear.com
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="hors-perimetre-visitor">
+                                        <span class="node-title">HORS PÉRIMÈTRE</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Contexte</div>
+                                            <div class="detail-content">
+                                                La demande du visiteur ne concerne pas Maroclear.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">VISITEUR :</div>
+                                                Comment acheter des actions à la Bourse de Casablanca ?
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Pour acheter des actions, vous devez contacter un intermédiaire agréé (société de bourse ou banque).<br><br>
+                                                <strong>Bourse de Casablanca :</strong><br>
+                                                Site : www.casablanca-bourse.com<br>
+                                                Tél : +212 522 452 626<br><br>
+                                                Ils pourront vous orienter vers les intermédiaires disponibles.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Fonctionnalités Transverses -->
+                        <li class="tree-node">
+                            <div class="node-header has-children" data-node="transverse-features">
+                                <span class="node-title">FONCTIONNALITÉS TRANSVERSES</span>
+                                <span class="node-badge">Pour tous les scénarios</span>
+                            </div>
+                            <ul>
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="resume-auto">
+                                        <span class="node-title">RÉSUMÉ AUTOMATIQUE</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Description</div>
+                                            <div class="detail-content">
+                                                Avant la création de tout ticket GLPI, l'agent génère automatiquement un <strong>résumé structuré en langage clair</strong> et demande validation à l'utilisateur.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Résumé Généré</div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                <strong>RÉCAPITULATIF DE VOTRE INCIDENT</strong><br><br>
+                                                Service : Post-marché Bourse<br>
+                                                Système : TCS BaNCS<br>
+                                                Date/Heure : 12/02/2026 à 09h30<br>
+                                                Description : Blocage lors de validation du dénouement. Message "Timeout"<br>
+                                                Priorité : P3 (Moyenne)<br><br>
+                                                Confirmez-vous ces informations ?<br>
+                                                [Bouton : Oui, créer le ticket] [Bouton : Modifier]
+                                            </div>
+                                        </div>
+
+                                        <div class="detail-section">
+                                            <div class="detail-title">Bénéfices</div>
+                                            <div class="detail-content">
+                                                • Qualité des tickets GLPI améliorée de 70%<br>
+                                                • Réduction des allers-retours avec le support<br>
+                                                • Validation utilisateur avant création<br>
+                                                • NLP avancé pour compréhension contextuelle
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="auto-learning">
+                                        <span class="node-title">AUTO-APPRENTISSAGE</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Description</div>
+                                            <div class="detail-content">
+                                                Lorsque l'agent ne connaît pas la réponse à une question, il propose de <strong>transmettre au support spécialisé</strong> et d'apprendre de la réponse pour enrichir sa base de connaissances.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Conversation</div>
+                                            
+                                            <div class="chat-message user">
+                                                <div class="label">UTILISATEUR :</div>
+                                                Quelle est la procédure pour les transferts internationaux de Sukuk ?
+                                            </div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Je n'ai pas cette information avec certitude dans ma base.<br><br>
+                                                Je peux :<br>
+                                                1. Transmettre votre question au support spécialisé<br>
+                                                2. Apprendre de leur réponse pour aider les prochains utilisateurs<br><br>
+                                                Souhaitez-vous que je transmette ?<br>
+                                                [Bouton : Oui, transmettez] [Bouton : Non merci]
+                                            </div>
+                                        </div>
+
+                                        <div class="detail-section">
+                                            <div class="detail-title">Bénéfices</div>
+                                            <div class="detail-content">
+                                                • IA apprenante qui s'améliore continuellement<br>
+                                                • Transparence totale (l'agent indique qu'il ne sait pas)<br>
+                                                • ROI croissant : plus utilisé = plus intelligent<br>
+                                                • Vision long terme et amélioration continue
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
+                                <li class="tree-node">
+                                    <div class="node-header" data-node="feedback-etoiles">
+                                        <span class="node-title">FEEDBACK UTILISATEUR</span>
+                                    </div>
+                                    <div class="detail-panel">
+                                        <div class="detail-section">
+                                            <div class="detail-title">Description</div>
+                                            <div class="detail-content">
+                                                À la fin de chaque interaction, l'agent demande un <strong>feedback par étoiles</strong> (1 à 5) avec commentaire optionnel pour mesurer la satisfaction et identifier les axes d'amélioration.
+                                            </div>
+                                        </div>
+
+                                        <div class="dialogue-box">
+                                            <div class="dialogue-title">Exemple de Demande de Feedback</div>
+                                            
+                                            <div class="chat-message agent">
+                                                <div class="label">AGENT :</div>
+                                                Votre incident a été enregistré avec succès !<br>
+                                                Numéro de ticket : GLPI-2026-8756<br><br>
+                                                <strong>Pour nous aider à améliorer nos services, évaluez votre expérience :</strong><br><br>
+                                                ⭐ ⭐ ⭐ ⭐ ⭐<br><br>
+                                                Commentaire (optionnel) : ___________<br><br>
+                                                [Bouton : Envoyer mon évaluation] [Bouton : Passer]
+                                            </div>
+                                        </div>
+
+                                        <div class="detail-section">
+                                            <div class="detail-title">Bénéfices</div>
+                                            <div class="detail-content">
+                                                • Mesure satisfaction en temps réel<br>
+                                                • Identification rapide des problèmes<br>
+                                                • KPIs précis pour amélioration continue<br>
+                                                • Retour direct après chaque interaction
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+
+        </div>
+    </div>
+
+    <script>
+        // Tree expansion logic
+        const nodeHeaders = document.querySelectorAll('.node-header');
+        
+        nodeHeaders.forEach(header => {
+            header.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                const parentNode = this.closest('.tree-node');
+                const childList = parentNode.querySelector(':scope > ul');
+                const detailPanel = parentNode.querySelector(':scope > .detail-panel');
+                
+                if (childList) {
+                    childList.classList.toggle('expanded');
+                    this.classList.toggle('expanded');
+                }
+                
+                if (detailPanel) {
+                    detailPanel.classList.toggle('show');
+                }
+
+                // Compteur d'interactions (supprimé - pas de feedback dans la page)
+            });
+        });
+
+        // Expand All
+        document.getElementById('expandAll').addEventListener('click', function() {
+            document.querySelectorAll('.tree ul').forEach(ul => {
+                ul.classList.add('expanded');
+            });
+            document.querySelectorAll('.node-header.has-children').forEach(header => {
+                header.classList.add('expanded');
+            });
+            document.querySelectorAll('.detail-panel').forEach(panel => {
+                panel.classList.add('show');
+            });
+        });
+
+        // Collapse All
+        document.getElementById('collapseAll').addEventListener('click', function() {
+            document.querySelectorAll('.tree ul').forEach(ul => {
+                ul.classList.remove('expanded');
+            });
+            document.querySelectorAll('.node-header').forEach(header => {
+                header.classList.remove('expanded');
+            });
+            document.querySelectorAll('.detail-panel').forEach(panel => {
+                panel.classList.remove('show');
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = this.value.toLowerCase();
+                
+                if (searchTerm.length < 2) {
+                    document.querySelectorAll('.tree-node').forEach(node => {
+                        node.style.display = '';
+                    });
+                    return;
+                }
+                
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    const title = node.querySelector('.node-title')?.textContent.toLowerCase() || '';
+                    const content = node.querySelector('.detail-panel')?.textContent.toLowerCase() || '';
+                    
+                    if (title.includes(searchTerm) || content.includes(searchTerm)) {
+                        node.style.display = '';
+                        
+                        // Expand parent nodes
+                        let parent = node.closest('ul');
+                        while (parent) {
+                            parent.classList.add('expanded');
+                            const parentHeader = parent.previousElementSibling;
+                            if (parentHeader) {
+                                parentHeader.classList.add('expanded');
+                            }
+                            parent = parent.parentElement?.closest('ul');
+                        }
+                        
+                        if (content.includes(searchTerm)) {
+                            const detailPanel = node.querySelector(':scope > .detail-panel');
+                            if (detailPanel) {
+                                detailPanel.classList.add('show');
+                            }
+                        }
+                    } else {
+                        node.style.display = 'none';
+                    }
+                });
+            }, 300);
+        });
+
+        // Onboarding button clicks
+        document.querySelectorAll('.onboarding-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const isAffiliate = this.textContent.includes('Affilié');
+                const targetNode = isAffiliate ? 'affiliate' : 'visitor';
+                
+                // Ouvrir l'arbre jusqu'à la catégorie sélectionnée
+                const rootNode = document.querySelector('[data-node="root"]');
+                if (rootNode) {
+                    rootNode.click();
+                    
+                    setTimeout(() => {
+                        const categoryNode = document.querySelector(`[data-node="${targetNode}"]`);
+                        if (categoryNode) {
+                            categoryNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            categoryNode.click();
+                        }
+                    }, 400);
+                }
+            });
+        });
+
+        // Onboarding input functionality
+        document.querySelector('.onboarding-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                // Simuler une recherche
+                searchInput.value = this.value;
+                searchInput.dispatchEvent(new Event('input'));
+                
+                // Scroll vers les résultats
+                setTimeout(() => {
+                    document.querySelector('.tree-container').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>
