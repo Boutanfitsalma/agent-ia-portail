@@ -17,6 +17,9 @@
             --red: #e74c3c;
             --success: #27ae60;
             --blue: #4a90e2;
+            --grisd : #6f6f6f;
+            --grisf : #d8d6d6;
+            
         }
 
         * {
@@ -234,9 +237,24 @@
             color: white;
         }
 
+        .tree > .tree-node > ul > .tree-node.affiliate > .node-header {
+            background: linear-gradient(135deg, #6f6f6f, #8a8a8a);
+            border-color: #6f6f6f;
+        }
+
         .tree > .tree-node > ul > .tree-node.visitor > .node-header {
             background: linear-gradient(135deg, var(--green), #b8c030);
             border-color: var(--green);
+        }
+
+        .tree > .tree-node > ul > .tree-node .node-header[data-node="transverse-features"] {
+            background: linear-gradient(135deg, #d8d6d6, #e8e6e6);
+            color: var(--black);
+            border-color: #d8d6d6;
+        }
+
+        .tree > .tree-node > ul > .tree-node .node-header[data-node="transverse-features"]::after {
+            color: var(--grey);
         }
 
         /* Level 2 - Scenarios */
@@ -528,10 +546,6 @@
             </div>
         </div>
 
-        <!-- Search -->
-        <div class="search-box">
-            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un scénario (ex: incident, affiliation, résumé)">
-        </div>
 
         <!-- Controls -->
         <div class="controls">
@@ -1333,4 +1347,5 @@
         });
     </script>
 </body>
+
 </html>
