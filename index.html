@@ -1191,6 +1191,14 @@
 
     <script>
         // Tree expansion logic
+        // Auto-expand root on load
+        const rootNode = document.querySelector('#mainTree > .tree-node');
+        if (rootNode) {
+            const rootHeader = rootNode.querySelector(':scope > .node-header');
+            const rootUl = rootNode.querySelector(':scope > ul');
+            if (rootHeader) rootHeader.classList.add('expanded');
+            if (rootUl) rootUl.classList.add('expanded');
+        }
         const nodeHeaders = document.querySelectorAll('.node-header');
         
         nodeHeaders.forEach(header => {
@@ -1329,5 +1337,6 @@
 </body>
 
 </html>
+
 
 
